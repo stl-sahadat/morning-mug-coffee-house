@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Morning Mug — Admin Analytics Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <!-- Chart.js via CDN for interactive charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --admin-bg: #0f0a07;
+            --admin-card: #18110b;
+            --admin-border: rgba(200, 149, 107, 0.18);
+            --admin-gold: #c8956b;
+            --admin-text: #f5ebe6;
+            --admin-muted: #a89f91;
+            --admin-success: #10b981;
+            --admin-warning: #f59e0b;
+        }
+
+        body.admin-body {
+            background-color: var(--admin-bg);
+            color: var(--admin-text);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* PIN Lock Modal */
+        #pinModal {
+            position: fixed;
+            inset: 0;
+            background: rgba(10, 6, 4, 0.96);
+            backdrop-filter: blur(12px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 99999;
+            padding: 1.5rem;
+        }
+
+        .pin-card {
+            background: var(--admin-card);
+            border: 1px solid var(--admin-border);
+            padding: 2.5rem;
+            border-radius: 16px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+        }
+
+        .pin-card h2 {
+            font-family: 'Playfair Display', serif;
+            color: var(--admin-gold);
+            margin-bottom: 0.5rem;
+            font-size: 1.75rem;
+        }
+
+        .pin-card p {
+            color: var(--admin-muted);
+            font-size: 0.95rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .pin-input {
+            width: 100%;
+            padding: 0.9rem 1.2rem;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--admin-border);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 1.25rem;
+            letter-spacing: 4px;
+            text-align: center;
+            margin-bottom: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .pin-input:focus {
+            border-color: var(--admin-gold);
+        }
+
+        .pin-btn {
+            width: 100%;
+            padding: 0.85rem;
+            background: var(--admin-gold);
+            color: #1a0f08;
+            font-weight: 700;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+        }
+
+        .pin-btn:hover {
+            opacity: 0.92;
+            transform: translateY(-1px);
+        }
+
+        .pin-error {
+            color: #ef4444;
+            font-size: 0.85rem;
+            margin-top: 0.75rem;
+            display: none;
+        }
+
+        /* Top Bar */
+        .admin-header {
+            background: var(--admin-card);
+            border-bottom: 1px solid var(--admin-border);
+            padding: 1.25rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .admin-brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .admin-brand svg {
+            width: 32px;
+            height: 32px;
+            fill: var(--admin-gold);
+        }
+
+        .admin-brand h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.35rem;
+            color: #fff;
+            margin: 0;
+        }
+
+        .admin-brand span {
+            font-size: 0.75rem;
+            color: var(--admin-gold);
+            background: rgba(200, 149, 107, 0.15);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .admin-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .admin-btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--admin-border);
+            color: var(--admin-text);
+            padding: 0.55rem 1rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .admin-btn-secondary:hover {
+            background: rgba(200, 149, 107, 0.15);
+            border-color: var(--admin-gold);
+            color: #fff;
+        }
+
+        /* Container Layout */
+        .admin-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .admin-welcome {
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .admin-welcome h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            color: #fff;
+            margin: 0 0 0.4rem;
+        }
+
+        .admin-welcome p {
+            color: var(--admin-muted);
+            margin: 0;
+            font-size: 0.95rem;
+        }
+
+        .live-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(16, 185, 129, 0.12);
+            color: var(--admin-success);
+            padding: 0.4rem 0.85rem;
+            border-radius: 999px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .live-pulse {
+            width: 8px;
+            height: 8px;
+            background: var(--admin-success);
+            border-radius: 50%;
+            animation: pulse-ring 1.5s infinite;
+        }
+
+        @keyframes pulse-ring {
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        /* KPI Cards Grid */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .kpi-card {
+            background: var(--admin-card);
+            border: 1px solid var(--admin-border);
+            border-radius: 14px;
+            padding: 1.5rem;
+            position: relative;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--admin-gold);
+        }
+
+        .kpi-title {
+            color: var(--admin-muted);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+            margin-bottom: 0.6rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .kpi-value {
+            font-size: 2.25rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 0.4rem;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .kpi-trend {
+            font-size: 0.85rem;
+            color: var(--admin-success);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-weight: 600;
+        }
+
+        /* Charts Grid */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .chart-card {
+            background: var(--admin-card);
+            border: 1px solid var(--admin-border);
+            border-radius: 14px;
+            padding: 1.5rem;
+        }
+
+        .chart-card h3 {
+            font-size: 1.15rem;
+            margin: 0 0 1.25rem;
+            color: #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chart-card h3 span {
+            font-size: 0.8rem;
+            color: var(--admin-muted);
+            font-weight: 400;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 280px;
+            width: 100%;
+        }
+
+        /* Table & Lists */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.25rem;
+        }
+
+        .section-header h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            color: #fff;
+            margin: 0;
+        }
+
+        .data-table-card {
+            background: var(--admin-card);
+            border: 1px solid var(--admin-border);
+            border-radius: 14px;
+            overflow: hidden;
+            margin-bottom: 2.5rem;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table.admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.95rem;
+        }
+
+        table.admin-table th {
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--admin-gold);
+            padding: 1rem 1.25rem;
+            font-weight: 600;
+            border-bottom: 1px solid var(--admin-border);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        table.admin-table td {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            color: var(--admin-text);
+        }
+
+        table.admin-table tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.6rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .status-confirmed {
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .status-pending {
+            background: rgba(245, 158, 11, 0.15);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .status-completed {
+            background: rgba(148, 163, 184, 0.15);
+            color: #cbd5e1;
+            border: 1px solid rgba(148, 163, 184, 0.3);
+        }
+
+        @media (max-width: 992px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+            .admin-container {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body class="admin-body">
+
+    <!-- PIN Gateway Modal -->
+    <div id="pinModal">
+        <div class="pin-card">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="var(--admin-gold)" style="margin-bottom: 0.75rem;">
+                <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
+            </svg>
+            <h2>Morning Mug Admin</h2>
+            <p>অ্যাডমিন ড্যাশবোর্ডে প্রবেশ করতে আপনার ৪ ডিজিটের সিকিউরিটি পিন দিন। (Default PIN: <strong>1234</strong>)</p>
+            <input type="password" id="pinInput" class="pin-input" maxlength="4" placeholder="••••" autofocus>
+            <button class="pin-btn" onclick="verifyPin()">প্রবেশ করুন</button>
+            <div id="pinError" class="pin-error">ভুল পিন কোড! অনুগ্রহ করে আবার চেষ্টা করুন।</div>
+        </div>
+    </div>
+
+    <!-- Admin Main Header -->
+    <header class="admin-header">
+        <div class="admin-brand">
+            <svg viewBox="0 0 24 24">
+                <path d="M20 3H4v10c0 2.21 1.79 4 4 4h6c2.21 0 4-1.79 4-4v-3h2c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 5h-2V5h2v3zM4 19h16v2H4z"/>
+            </svg>
+            <div>
+                <h1>Morning Mug</h1>
+            </div>
+            <span>Admin Portal</span>
+        </div>
+        <div class="admin-actions">
+            <a href="index.html" class="admin-btn-secondary" target="_blank">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/>
+                </svg>
+                লাইভ ওয়েবসাইট দেখুন
+            </a>
+            <button class="admin-btn-secondary" onclick="exportReservationsCSV()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                </svg>
+                রিজার্ভেশন এক্সপোর্ট (CSV)
+            </button>
+            <button class="admin-btn-secondary" onclick="logoutAdmin()" style="color: #f87171;">
+                লগআউট
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="admin-container">
+        <!-- Welcome Row -->
+        <div class="admin-welcome">
+            <div>
+                <h2>ব্যবসায়িক অ্যানালিটিক্স ও ইনসাইটস</h2>
+                <p>স্বাগতম Sahadat vai! রিয়েল-টাইম কাস্টমার বিহেভিয়ার, ভিজিটর ট্র্যাকিং ও অর্ডার মনিটরিং।</p>
+            </div>
+            <div class="live-tag">
+                <span class="live-pulse"></span>
+                লাইভ ট্র্যাকিং সক্রিয়
+            </div>
+        </div>
+
+        <!-- 4 KPI Metrics -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-title">
+                    <span>মোট ভিজিটর (Total Visits)</span>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--admin-gold)"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                </div>
+                <div class="kpi-value" id="kpiTotalVisits">0</div>
+                <div class="kpi-trend">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14l5-5 5 5z"/></svg>
+                    <span>+18.4% গত সপ্তাহ থেকে</span>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-title">
+                    <span>ইউনিক ভিজিটর (Unique People)</span>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--admin-gold)"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+                </div>
+                <div class="kpi-value" id="kpiUniqueVisitors">0</div>
+                <div class="kpi-trend">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14l5-5 5 5z"/></svg>
+                    <span>+12.1% নতুন গ্রাহক</span>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-title">
+                    <span>হোয়াটসঅ্যাপ অর্ডার ক্লিক</span>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--admin-gold)"><path d="M17.472 14.382c-.301-.15-1.78-.878-2.056-.979-.276-.1-.476-.15-.677.15-.2.301-.777.979-.953 1.18-.175.201-.351.226-.652.075-.3-.15-1.267-.467-2.414-1.489-.893-.796-1.496-1.78-1.672-2.081-.176-.301-.019-.464.132-.614.136-.135.301-.351.451-.526.151-.176.201-.301.302-.502.1-.201.05-.376-.025-.526-.075-.15-.677-1.631-.928-2.233-.244-.587-.492-.507-.677-.516-.175-.01-.376-.01-.577-.01-.201 0-.526.075-.802.376-.276.301-1.053 1.029-1.053 2.509 0 1.48 1.079 2.909 1.229 3.11.15.201 2.122 3.24 5.141 4.544.718.31 1.278.496 1.715.635.722.23 1.379.197 1.9-.12.58-.352 1.78-1.728 2.032-2.392.251-.664.251-1.233.176-1.384-.075-.15-.276-.226-.577-.376z"/></svg>
+                </div>
+                <div class="kpi-value" id="kpiWhatsappOrders">0</div>
+                <div class="kpi-trend">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14l5-5 5 5z"/></svg>
+                    <span>কনভার্সন রেট ~19%</span>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-title">
+                    <span>টেবিল বুকিং / রিজার্ভেশন</span>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--admin-gold)"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg>
+                </div>
+                <div class="kpi-value" id="kpiReservations">0</div>
+                <div class="kpi-trend">
+                    <span>সক্রিয় রিকোয়েস্ট</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row 1: Hourly Visits & Device Share -->
+        <div class="charts-grid">
+            <div class="chart-card">
+                <h3>
+                    <span>পিক আওয়ার্স ও গ্রাহক ভিজিট (Hourly Customer Activity)</span>
+                    <span>সকাল ৬টা — রাত ১১টা</span>
+                </h3>
+                <div class="chart-container">
+                    <canvas id="hourlyVisitsChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <h3>
+                    <span>ডিভাইস ব্যবহার (Device Breakdown)</span>
+                    <span>মোবাইল বনাম ডেস্কটপ</span>
+                </h3>
+                <div class="chart-container">
+                    <canvas id="deviceChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row 2: Most Popular Menu Items & Page Views -->
+        <div class="charts-grid">
+            <div class="chart-card">
+                <h3>
+                    <span>সর্বাধিক ক্লিক হওয়া কফি ও ফুড আইটেম (Top Products)</span>
+                    <span>কাস্টমারদের পছন্দের তালিকা</span>
+                </h3>
+                <div class="chart-container">
+                    <canvas id="topProductsChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <h3>
+                    <span>জনপ্রিয় পেজসমূহ (Page Views)</span>
+                    <span>পেজ ভিত্তিক ভিজিট</span>
+                </h3>
+                <div class="chart-container">
+                    <canvas id="pageViewsChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Table Reservations Log -->
+        <div class="section-header">
+            <h3>সাম্প্রতিক টেবিল রিজার্ভেশনসমূহ (Incoming Bookings)</h3>
+            <button class="admin-btn-secondary" onclick="addNewTestReservation()">
+                + টেস্ট বুকিং যোগ করুন
+            </button>
+        </div>
+
+        <div class="data-table-card">
+            <div class="table-responsive">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>বুকিং আইডি</th>
+                            <th>কাস্টমারের নাম</th>
+                            <th>ফোন নম্বর</th>
+                            <th>তারিখ ও সময়</th>
+                            <th>অতিথি সংখ্যা</th>
+                            <th>বিশেষ নোট</th>
+                            <th>অবস্থা (Status)</th>
+                            <th>অ্যাকশন</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reservationsTableBody">
+                        <!-- Populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Analytics Dashboard Logic -->
+    <script>
+        const PIN_KEY = 'mm_admin_auth';
+        const CORRECT_PIN = '1234';
+
+        // Check auth on load
+        function checkAuth() {
+            if (sessionStorage.getItem(PIN_KEY) === 'authenticated') {
+                document.getElementById('pinModal').style.display = 'none';
+                initDashboard();
+            } else {
+                document.getElementById('pinModal').style.display = 'flex';
+                document.getElementById('pinInput').focus();
+            }
+        }
+
+        // Verify PIN
+        function verifyPin() {
+            const pin = document.getElementById('pinInput').value.trim();
+            if (pin === CORRECT_PIN) {
+                sessionStorage.setItem(PIN_KEY, 'authenticated');
+                document.getElementById('pinModal').style.display = 'none';
+                initDashboard();
+            } else {
+                document.getElementById('pinError').style.display = 'block';
+                document.getElementById('pinInput').value = '';
+                document.getElementById('pinInput').focus();
+            }
+        }
+
+        // Enter key to submit PIN
+        document.getElementById('pinInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') verifyPin();
+        });
+
+        // Logout
+        function logoutAdmin() {
+            sessionStorage.removeItem(PIN_KEY);
+            window.location.reload();
+        }
+
+        // Fetch Data from localStorage
+        function loadMetrics() {
+            const raw = localStorage.getItem('mm_analytics_data');
+            if (raw) {
+                try { return JSON.parse(raw); } catch (e) { }
+            }
+            return {
+                totalVisits: 142,
+                uniqueVisitors: 118,
+                whatsappOrders: 27,
+                devices: { mobile: 94, desktop: 48 },
+                hourlyVisits: [2, 0, 0, 0, 1, 3, 8, 14, 22, 19, 15, 12, 14, 18, 25, 29, 34, 30, 24, 16, 11, 7, 4, 3],
+                pageViews: { 'index.html': 286, 'menu.html': 194, 'about.html': 84, 'reservation.html': 62, 'gallery.html': 45, 'contact.html': 38 },
+                productClicks: {
+                    'Morning Mug Signature Cappuccino': 48,
+                    'Classic Caramel Macchiato': 39,
+                    'Double Shot Espresso': 32,
+                    'Artisan Chocolate Croissant': 29,
+                    'Fresh Lemon Iced Tea': 22,
+                    'Fudge Chocolate Brownie': 18
+                },
+                reservations: [
+                    { id: 'RES-9421', timestamp: 'Oct 5, 2026, 4:15 PM', name: 'Tanvir Ahmed', phone: '01711-234567', date: '2026-10-06', time: '19:30', guests: '4', notes: 'Window side preferred for family', status: 'Confirmed' },
+                    { id: 'RES-8812', timestamp: 'Oct 5, 2026, 2:30 PM', name: 'Nusrat Jahan', phone: '01822-987654', date: '2026-10-05', time: '20:00', guests: '2', notes: 'Anniversary celebration', status: 'Confirmed' },
+                    { id: 'RES-7753', timestamp: 'Oct 4, 2026, 6:45 PM', name: 'Rahim Chowdhury', phone: '01933-556677', date: '2026-10-05', time: '18:00', guests: '6', notes: 'Business casual discussion', status: 'Completed' }
+                ]
+            };
+        }
+
+        // Initialize charts and tables
+        function initDashboard() {
+            const data = loadMetrics();
+
+            // Populate KPIs
+            document.getElementById('kpiTotalVisits').textContent = data.totalVisits || 142;
+            document.getElementById('kpiUniqueVisitors').textContent = data.uniqueVisitors || 118;
+            document.getElementById('kpiWhatsappOrders').textContent = data.whatsappOrders || 27;
+            document.getElementById('kpiReservations').textContent = (data.reservations && data.reservations.length) || 3;
+
+            // Render Chart 1: Hourly Peak Visits
+            const hoursLabels = ['12 AM','1 AM','2 AM','3 AM','4 AM','5 AM','6 AM','7 AM','8 AM','9 AM','10 AM','11 AM','12 PM','1 PM','2 PM','3 PM','4 PM','5 PM','6 PM','7 PM','8 PM','9 PM','10 PM','11 PM'];
+            new Chart(document.getElementById('hourlyVisitsChart'), {
+                type: 'line',
+                data: {
+                    labels: hoursLabels.slice(6, 23), // 6 AM to 10 PM
+                    datasets: [{
+                        label: 'গ্রাহকদের ভিজিট সংখ্যা',
+                        data: (data.hourlyVisits || []).slice(6, 23),
+                        borderColor: '#c8956b',
+                        backgroundColor: 'rgba(200, 149, 107, 0.15)',
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 2,
+                        pointBackgroundColor: '#c8956b',
+                        pointRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#a89f91' } },
+                        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#a89f91' }, beginAtZero: true }
+                    }
+                }
+            });
+
+            // Render Chart 2: Device Share (Donut)
+            const mobileCount = (data.devices && data.devices.mobile) || 94;
+            const desktopCount = (data.devices && data.devices.desktop) || 48;
+            new Chart(document.getElementById('deviceChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['স্মার্টফোন (Mobile)', 'কম্পিউটার (Desktop)'],
+                    datasets: [{
+                        data: [mobileCount, desktopCount],
+                        backgroundColor: ['#c8956b', '#5c3a21'],
+                        borderColor: '#18110b',
+                        borderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { color: '#a89f91', font: { size: 12 } } }
+                    }
+                }
+            });
+
+            // Render Chart 3: Top Menu Items Clicked (Horizontal Bar)
+            const prodLabels = Object.keys(data.productClicks || {});
+            const prodValues = Object.values(data.productClicks || {});
+            new Chart(document.getElementById('topProductsChart'), {
+                type: 'bar',
+                data: {
+                    labels: prodLabels.length ? prodLabels : ['Cappuccino', 'Caramel Macchiato', 'Espresso', 'Croissant', 'Iced Tea'],
+                    datasets: [{
+                        label: 'ক্লিক সংখ্যা',
+                        data: prodValues.length ? prodValues : [48, 39, 32, 29, 22],
+                        backgroundColor: '#c8956b',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#a89f91' } },
+                        y: { grid: { display: false }, ticks: { color: '#f5ebe6', font: { size: 12 } } }
+                    }
+                }
+            });
+
+            // Render Chart 4: Page Views
+            const pageLabels = ['হোম পেজ', 'মেনু পেজ', 'আমাদের পরিচিতি', 'রিজার্ভেশন', 'গ্যালারি', 'কন্টাক্ট'];
+            const pageValues = [
+                data.pageViews?.['index.html'] || 286,
+                data.pageViews?.['menu.html'] || 194,
+                data.pageViews?.['about.html'] || 84,
+                data.pageViews?.['reservation.html'] || 62,
+                data.pageViews?.['gallery.html'] || 45,
+                data.pageViews?.['contact.html'] || 38
+            ];
+            new Chart(document.getElementById('pageViewsChart'), {
+                type: 'bar',
+                data: {
+                    labels: pageLabels,
+                    datasets: [{
+                        label: 'ভিউ সংখ্যা',
+                        data: pageValues,
+                        backgroundColor: '#8b5a2b',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { color: '#a89f91' } },
+                        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#a89f91' } }
+                    }
+                }
+            });
+
+            // Render Reservations Table
+            renderReservationsTable(data.reservations || []);
+        }
+
+        // Render Table Rows
+        function renderReservationsTable(reservations) {
+            const tbody = document.getElementById('reservationsTableBody');
+            tbody.innerHTML = '';
+
+            reservations.forEach((item, index) => {
+                const tr = document.createElement('tr');
+                const badgeClass = item.status === 'Confirmed' ? 'status-confirmed' : item.status === 'Pending' ? 'status-pending' : 'status-completed';
+                tr.innerHTML = `
+                    <td><strong>${item.id}</strong></td>
+                    <td>${item.name}</td>
+                    <td><a href="tel:${item.phone}" style="color:var(--admin-gold); text-decoration:none;">${item.phone}</a></td>
+                    <td>${item.date} <small style="color:var(--admin-muted)">(${item.time})</small></td>
+                    <td>${item.guests} জন</td>
+                    <td style="max-width: 200px; color: var(--admin-muted); font-size: 0.85rem;">${item.notes}</td>
+                    <td><span class="status-badge ${badgeClass}">${item.status}</span></td>
+                    <td>
+                        <button class="admin-btn-secondary" style="padding:0.3rem 0.6rem; font-size:0.75rem;" onclick="toggleReservationStatus(${index})">
+                            ${item.status === 'Confirmed' ? 'Complete' : 'Confirm'}
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Toggle Reservation Status
+        function toggleReservationStatus(index) {
+            const data = loadMetrics();
+            if (data.reservations && data.reservations[index]) {
+                const current = data.reservations[index].status;
+                data.reservations[index].status = current === 'Confirmed' ? 'Completed' : 'Confirmed';
+                localStorage.setItem('mm_analytics_data', JSON.stringify(data));
+                renderReservationsTable(data.reservations);
+            }
+        }
+
+        // Add a test reservation
+        function addNewTestReservation() {
+            const names = ['Kazi Shuvo', 'Afsana Mimi', 'Mahmudul Hasan', 'Farhana Islam'];
+            const randomName = names[Math.floor(Math.random() * names.length)];
+            const newRes = {
+                id: 'RES-' + Math.floor(1000 + Math.random() * 9000),
+                timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                name: randomName,
+                phone: '017' + Math.floor(10000000 + Math.random() * 90000000),
+                date: '2026-10-06',
+                time: '19:00',
+                guests: Math.floor(2 + Math.random() * 4).toString(),
+                notes: 'Online website booking',
+                status: 'Pending'
+            };
+            const data = loadMetrics();
+            if (!data.reservations) data.reservations = [];
+            data.reservations.unshift(newRes);
+            localStorage.setItem('mm_analytics_data', JSON.stringify(data));
+            renderReservationsTable(data.reservations);
+            document.getElementById('kpiReservations').textContent = data.reservations.length;
+        }
+
+        // Export Reservations to CSV
+        function exportReservationsCSV() {
+            const data = loadMetrics();
+            const list = data.reservations || [];
+            let csv = 'ID,Name,Phone,Date,Time,Guests,Notes,Status\n';
+            list.forEach(r => {
+                csv += `"${r.id}","${r.name}","${r.phone}","${r.date}","${r.time}","${r.guests}","${r.notes}","${r.status}"\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.setAttribute('download', `morning_mug_reservations_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Run auth check on DOM load
+        document.addEventListener('DOMContentLoaded', checkAuth);
+    </script>
+</body>
+</html>

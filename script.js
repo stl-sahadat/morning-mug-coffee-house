@@ -88,6 +88,17 @@ document.addEventListener("DOMContentLoaded", () => {
         reservationMessage.scrollIntoView({ behavior: "smooth", block: "nearest" });
       }
 
+      if (window.trackReservation) {
+        window.trackReservation({
+          name: name,
+          phone: document.querySelector("#reservationPhone")?.value || document.querySelector("input[type='tel']")?.value || "01320989282",
+          date: date,
+          time: time,
+          guests: guests,
+          notes: document.querySelector("#reservationNotes")?.value || "Table booking from website"
+        });
+      }
+
       reservationForm.reset();
       if (reservationDate) {
         const today = new Date();
@@ -181,6 +192,9 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       addItem(name, price, orderBtn);
+      if (window.trackProductClick) {
+        window.trackProductClick(name);
+      }
       return;
     }
 
@@ -210,6 +224,11 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       const orderText = cart.map(item => `${item.name} (${item.qty}x)`).join(", ");
       const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+
+      if (window.trackWhatsAppOrder) {
+        window.trackWhatsAppOrder(cart.length, total);
+      }
+
       const message = `Hello Morning Mug Coffee House, I would like to place an order: ${orderText}. Total: ${formatPrice(total)}.`;
       const phone = "8801320989282";
       window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, "_blank");
