@@ -1,5 +1,7 @@
 # ☕ Morning Mug Coffee House — Complete Architecture & Developer Documentation
 
+> **Live Demo:** [https://stl-sahadat.github.io/morning-mug-coffee-house/](https://stl-sahadat.github.io/morning-mug-coffee-house/)  
+> **Repository:** [https://github.com/stl-sahadat/morning-mug-coffee-house](https://github.com/stl-sahadat/morning-mug-coffee-house)  
 > **Project Name:** Morning Mug Coffee House Website  
 > **Founder:** Md Sahadat Hossain  
 > **Brand Location:** Sunnash, Uttar Badda, Dhaka, Bangladesh  
