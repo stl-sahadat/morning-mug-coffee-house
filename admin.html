@@ -3,40 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Morning Mug — Admin Analytics Dashboard</title>
+    <title>অ্যাডমিন ড্যাশবোর্ড | Morning Mug Coffee House</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-    <!-- Chart.js via CDN for interactive charts -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        :root {
-            --admin-bg: #0f0a07;
-            --admin-card: #18110b;
-            --admin-border: rgba(200, 149, 107, 0.18);
-            --admin-gold: #c8956b;
-            --admin-text: #f5ebe6;
-            --admin-muted: #a89f91;
-            --admin-success: #10b981;
-            --admin-warning: #f59e0b;
-        }
-
-        body.admin-body {
-            background-color: var(--admin-bg);
-            color: var(--admin-text);
-            font-family: 'Plus Jakarta Sans', sans-serif;
+        /* Admin Specialized Theme matching Morning Mug Design Tokens */
+        body.admin-page {
+            background-color: var(--espresso);
+            color: var(--cream);
+            font-family: var(--font-sans);
             min-height: 100vh;
+            display: flex;
+            flex-direction: column;
             margin: 0;
-            padding: 0;
         }
 
-        /* PIN Lock Modal */
-        #pinModal {
+        /* Password Auth Modal */
+        #authModal {
             position: fixed;
             inset: 0;
-            background: rgba(10, 6, 4, 0.96);
-            backdrop-filter: blur(12px);
+            background: rgba(18, 10, 6, 0.96);
+            backdrop-filter: blur(16px);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -44,227 +34,254 @@
             padding: 1.5rem;
         }
 
-        .pin-card {
-            background: var(--admin-card);
-            border: 1px solid var(--admin-border);
-            padding: 2.5rem;
-            border-radius: 16px;
-            max-width: 400px;
+        .auth-card {
+            background: var(--brown);
+            border: 1px solid rgba(200, 149, 107, 0.25);
+            padding: 2.75rem 2.25rem;
+            border-radius: var(--radius-lg);
+            max-width: 420px;
             width: 100%;
             text-align: center;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+            box-shadow: var(--shadow-lg), 0 0 50px rgba(200, 149, 107, 0.15);
         }
 
-        .pin-card h2 {
-            font-family: 'Playfair Display', serif;
-            color: var(--admin-gold);
-            margin-bottom: 0.5rem;
-            font-size: 1.75rem;
-        }
-
-        .pin-card p {
-            color: var(--admin-muted);
-            font-size: 0.95rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .pin-input {
-            width: 100%;
-            padding: 0.9rem 1.2rem;
-            background: rgba(0, 0, 0, 0.5);
-            border: 1px solid var(--admin-border);
-            border-radius: 8px;
-            color: #fff;
-            font-size: 1.25rem;
-            letter-spacing: 4px;
-            text-align: center;
-            margin-bottom: 1rem;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-
-        .pin-input:focus {
-            border-color: var(--admin-gold);
-        }
-
-        .pin-btn {
-            width: 100%;
-            padding: 0.85rem;
-            background: var(--admin-gold);
-            color: #1a0f08;
-            font-weight: 700;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: all 0.2s ease;
-        }
-
-        .pin-btn:hover {
-            opacity: 0.92;
-            transform: translateY(-1px);
-        }
-
-        .pin-error {
-            color: #ef4444;
-            font-size: 0.85rem;
-            margin-top: 0.75rem;
-            display: none;
-        }
-
-        /* Top Bar */
-        .admin-header {
-            background: var(--admin-card);
-            border-bottom: 1px solid var(--admin-border);
-            padding: 1.25rem 2rem;
+        .auth-brand-icon {
+            width: 56px;
+            height: 56px;
+            margin: 0 auto 1.25rem;
+            background: rgba(200, 149, 107, 0.15);
+            border: 1px solid rgba(200, 149, 107, 0.3);
+            border-radius: 50%;
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: center;
+            color: var(--gold);
+        }
+
+        .auth-card h2 {
+            font-family: var(--font-serif);
+            color: var(--white);
+            margin: 0 0 0.5rem;
+            font-size: 1.85rem;
+        }
+
+        .auth-card p {
+            color: var(--muted);
+            font-size: 0.95rem;
+            margin: 0 0 1.75rem;
+        }
+
+        .auth-input {
+            width: 100%;
+            padding: 1rem 1.25rem;
+            background: rgba(15, 8, 5, 0.7);
+            border: 1px solid rgba(200, 149, 107, 0.3);
+            border-radius: var(--radius-sm);
+            color: var(--white);
+            font-size: 1.35rem;
+            letter-spacing: 6px;
+            text-align: center;
+            margin-bottom: 1.25rem;
+            outline: none;
+            transition: var(--transition);
+            box-sizing: border-box;
+        }
+
+        .auth-input:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 0 4px rgba(200, 149, 107, 0.2);
+        }
+
+        .auth-submit-btn {
+            width: 100%;
+            padding: 0.95rem;
+            background: var(--gold);
+            color: var(--espresso);
+            font-family: var(--font-sans);
+            font-weight: 700;
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .auth-submit-btn:hover {
+            background: var(--caramel);
+            color: var(--white);
+            transform: translateY(-2px);
+        }
+
+        .auth-error {
+            color: #f87171;
+            font-size: 0.85rem;
+            margin-top: 1rem;
+            display: none;
+            background: rgba(239, 68, 68, 0.1);
+            padding: 0.5rem;
+            border-radius: 6px;
+            border: 1px solid rgba(239, 68, 68, 0.25);
+        }
+
+        /* Top Admin Navbar */
+        .admin-nav {
+            background: rgba(22, 12, 8, 0.95);
+            border-bottom: 1px solid rgba(200, 149, 107, 0.2);
             position: sticky;
             top: 0;
             z-index: 1000;
+            backdrop-filter: blur(12px);
         }
 
-        .admin-brand {
+        .admin-nav-inner {
             display: flex;
             align-items: center;
-            gap: 1rem;
+            justify-content: space-between;
+            padding: 1rem 0;
         }
 
-        .admin-brand svg {
-            width: 32px;
-            height: 32px;
-            fill: var(--admin-gold);
+        .admin-nav-left {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
         }
 
-        .admin-brand h1 {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.35rem;
-            color: #fff;
-            margin: 0;
-        }
-
-        .admin-brand span {
-            font-size: 0.75rem;
-            color: var(--admin-gold);
-            background: rgba(200, 149, 107, 0.15);
-            padding: 0.2rem 0.5rem;
+        .admin-badge {
+            font-size: 0.72rem;
+            color: var(--espresso);
+            background: var(--gold);
+            padding: 0.25rem 0.65rem;
             border-radius: 4px;
-            font-weight: 600;
+            font-weight: 700;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        .admin-actions {
+        .admin-nav-actions {
             display: flex;
             align-items: center;
-            gap: 1rem;
+            gap: 0.85rem;
         }
 
-        .admin-btn-secondary {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--admin-border);
-            color: var(--admin-text);
-            padding: 0.55rem 1rem;
-            border-radius: 8px;
-            font-size: 0.85rem;
+        .admin-btn {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(200, 149, 107, 0.25);
+            color: var(--cream);
+            padding: 0.6rem 1.1rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.88rem;
             font-weight: 600;
             text-decoration: none;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: var(--transition);
             display: inline-flex;
             align-items: center;
-            gap: 0.4rem;
+            gap: 0.5rem;
         }
 
-        .admin-btn-secondary:hover {
-            background: rgba(200, 149, 107, 0.15);
-            border-color: var(--admin-gold);
+        .admin-btn:hover {
+            background: rgba(200, 149, 107, 0.2);
+            border-color: var(--gold);
+            color: var(--white);
+        }
+
+        .admin-btn-logout {
+            color: #f87171;
+            border-color: rgba(248, 113, 113, 0.3);
+        }
+
+        .admin-btn-logout:hover {
+            background: rgba(239, 68, 68, 0.15);
+            border-color: #f87171;
             color: #fff;
         }
 
-        /* Container Layout */
-        .admin-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 2rem;
+        /* Dashboard Content Container */
+        .dashboard-wrapper {
+            flex: 1;
+            padding: 2.5rem 0 4rem;
         }
 
-        .admin-welcome {
-            margin-bottom: 2rem;
+        .dashboard-header {
             display: flex;
             justify-content: space-between;
             align-items: flex-end;
             flex-wrap: wrap;
-            gap: 1rem;
+            gap: 1.25rem;
+            margin-bottom: 2.25rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(200, 149, 107, 0.15);
         }
 
-        .admin-welcome h2 {
-            font-family: 'Playfair Display', serif;
-            font-size: 2rem;
-            color: #fff;
+        .dashboard-header h1 {
+            font-family: var(--font-serif);
+            font-size: 2.25rem;
+            color: var(--white);
             margin: 0 0 0.4rem;
         }
 
-        .admin-welcome p {
-            color: var(--admin-muted);
+        .dashboard-header p {
+            color: var(--muted);
             margin: 0;
-            font-size: 0.95rem;
+            font-size: 1rem;
         }
 
-        .live-tag {
+        .live-status-pill {
             display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.6rem;
             background: rgba(16, 185, 129, 0.12);
-            color: var(--admin-success);
-            padding: 0.4rem 0.85rem;
+            color: #34d399;
+            padding: 0.45rem 1rem;
             border-radius: 999px;
             font-size: 0.85rem;
             font-weight: 600;
             border: 1px solid rgba(16, 185, 129, 0.3);
         }
 
-        .live-pulse {
-            width: 8px;
-            height: 8px;
-            background: var(--admin-success);
+        .live-dot {
+            width: 9px;
+            height: 9px;
+            background: #10b981;
             border-radius: 50%;
-            animation: pulse-ring 1.5s infinite;
+            box-shadow: 0 0 10px #10b981;
+            animation: pulse-dot 1.8s infinite;
         }
 
-        @keyframes pulse-ring {
-            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-            70% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        @keyframes pulse-dot {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            50% { transform: scale(1.25); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.8; }
         }
 
-        /* KPI Cards Grid */
-        .kpi-grid {
+        /* Metric KPI Cards Grid */
+        .kpi-cards-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
             gap: 1.5rem;
             margin-bottom: 2.5rem;
         }
 
-        .kpi-card {
-            background: var(--admin-card);
-            border: 1px solid var(--admin-border);
-            border-radius: 14px;
-            padding: 1.5rem;
+        .kpi-box {
+            background: var(--brown);
+            border: 1px solid rgba(200, 149, 107, 0.2);
+            border-radius: var(--radius-md);
+            padding: 1.75rem 1.5rem;
             position: relative;
-            transition: transform 0.2s, border-color 0.2s;
+            transition: var(--transition);
         }
 
-        .kpi-card:hover {
-            transform: translateY(-2px);
-            border-color: var(--admin-gold);
+        .kpi-box:hover {
+            transform: translateY(-3px);
+            border-color: var(--gold);
+            box-shadow: var(--shadow-md);
         }
 
-        .kpi-title {
-            color: var(--admin-muted);
+        .kpi-label {
+            color: var(--muted);
             font-size: 0.85rem;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.75px;
             font-weight: 600;
             margin-bottom: 0.6rem;
             display: flex;
@@ -272,380 +289,422 @@
             align-items: center;
         }
 
-        .kpi-value {
-            font-size: 2.25rem;
+        .kpi-number {
+            font-size: 2.35rem;
             font-weight: 700;
-            color: #fff;
+            color: var(--white);
             margin-bottom: 0.4rem;
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-family: var(--font-sans);
         }
 
-        .kpi-trend {
+        .kpi-subtext {
             font-size: 0.85rem;
-            color: var(--admin-success);
+            color: #34d399;
             display: inline-flex;
             align-items: center;
-            gap: 0.25rem;
+            gap: 0.3rem;
             font-weight: 600;
         }
 
-        /* Charts Grid */
-        .charts-grid {
+        /* Charts Layout */
+        .analytics-charts-grid {
             display: grid;
             grid-template-columns: 2fr 1fr;
             gap: 1.5rem;
             margin-bottom: 2.5rem;
         }
 
-        .chart-card {
-            background: var(--admin-card);
-            border: 1px solid var(--admin-border);
-            border-radius: 14px;
-            padding: 1.5rem;
+        .chart-box {
+            background: var(--brown);
+            border: 1px solid rgba(200, 149, 107, 0.2);
+            border-radius: var(--radius-md);
+            padding: 1.75rem;
         }
 
-        .chart-card h3 {
-            font-size: 1.15rem;
-            margin: 0 0 1.25rem;
-            color: #fff;
+        .chart-box-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-bottom: 1.5rem;
         }
 
-        .chart-card h3 span {
+        .chart-box-header h2 {
+            font-family: var(--font-serif);
+            font-size: 1.35rem;
+            color: var(--white);
+            margin: 0;
+        }
+
+        .chart-box-header span {
             font-size: 0.8rem;
-            color: var(--admin-muted);
-            font-weight: 400;
+            color: var(--gold);
+            background: rgba(200, 149, 107, 0.12);
+            padding: 0.25rem 0.6rem;
+            border-radius: 4px;
         }
 
-        .chart-container {
+        .chart-canvas-wrap {
             position: relative;
-            height: 280px;
+            height: 290px;
             width: 100%;
         }
 
-        /* Table & Lists */
-        .section-header {
+        /* Real-Time Table Section */
+        .table-section-title {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 1.25rem;
         }
 
-        .section-header h3 {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.5rem;
-            color: #fff;
+        .table-section-title h2 {
+            font-family: var(--font-serif);
+            font-size: 1.65rem;
+            color: var(--white);
             margin: 0;
         }
 
-        .data-table-card {
-            background: var(--admin-card);
-            border: 1px solid var(--admin-border);
-            border-radius: 14px;
+        .table-card {
+            background: var(--brown);
+            border: 1px solid rgba(200, 149, 107, 0.2);
+            border-radius: var(--radius-md);
             overflow: hidden;
-            margin-bottom: 2.5rem;
+            box-shadow: var(--shadow-sm);
         }
 
-        .table-responsive {
+        .table-scroll {
             overflow-x: auto;
         }
 
-        table.admin-table {
+        table.dashboard-table {
             width: 100%;
             border-collapse: collapse;
             text-align: left;
             font-size: 0.95rem;
         }
 
-        table.admin-table th {
-            background: rgba(255, 255, 255, 0.03);
-            color: var(--admin-gold);
+        table.dashboard-table th {
+            background: rgba(0, 0, 0, 0.25);
+            color: var(--gold);
             padding: 1rem 1.25rem;
             font-weight: 600;
-            border-bottom: 1px solid var(--admin-border);
+            border-bottom: 1px solid rgba(200, 149, 107, 0.2);
             font-size: 0.85rem;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
-        table.admin-table td {
-            padding: 1rem 1.25rem;
+        table.dashboard-table td {
+            padding: 1.1rem 1.25rem;
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            color: var(--admin-text);
+            color: var(--cream);
         }
 
-        table.admin-table tr:hover td {
-            background: rgba(255, 255, 255, 0.02);
+        table.dashboard-table tr:hover td {
+            background: rgba(200, 149, 107, 0.05);
         }
 
-        .status-badge {
+        .badge-status {
             display: inline-block;
-            padding: 0.25rem 0.6rem;
+            padding: 0.25rem 0.75rem;
             border-radius: 999px;
             font-size: 0.75rem;
             font-weight: 600;
         }
 
-        .status-confirmed {
+        .badge-confirmed {
             background: rgba(16, 185, 129, 0.15);
             color: #34d399;
             border: 1px solid rgba(16, 185, 129, 0.3);
         }
 
-        .status-pending {
+        .badge-pending {
             background: rgba(245, 158, 11, 0.15);
             color: #fbbf24;
             border: 1px solid rgba(245, 158, 11, 0.3);
         }
 
-        .status-completed {
+        .badge-completed {
             background: rgba(148, 163, 184, 0.15);
             color: #cbd5e1;
             border: 1px solid rgba(148, 163, 184, 0.3);
         }
 
         @media (max-width: 992px) {
-            .charts-grid {
+            .analytics-charts-grid {
                 grid-template-columns: 1fr;
-            }
-            .admin-container {
-                padding: 1rem;
             }
         }
     </style>
 </head>
-<body class="admin-body">
+<body class="admin-page">
 
-    <!-- PIN Gateway Modal -->
-    <div id="pinModal">
-        <div class="pin-card">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="var(--admin-gold)" style="margin-bottom: 0.75rem;">
-                <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
-            </svg>
+    <!-- Password Modal -->
+    <div id="authModal">
+        <div class="auth-card">
+            <div class="auth-brand-icon">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+            </div>
             <h2>Morning Mug Admin</h2>
-            <p>অ্যাডমিন ড্যাশবোর্ডে প্রবেশ করতে আপনার ৪ ডিজিটের সিকিউরিটি পিন দিন। (Default PIN: <strong>1234</strong>)</p>
-            <input type="password" id="pinInput" class="pin-input" maxlength="4" placeholder="••••" autofocus>
-            <button class="pin-btn" onclick="verifyPin()">প্রবেশ করুন</button>
-            <div id="pinError" class="pin-error">ভুল পিন কোড! অনুগ্রহ করে আবার চেষ্টা করুন।</div>
+            <p>ড্যাশবোর্ডে প্রবেশ করতে সিকিউরিটি পাসওয়ার্ড দিন</p>
+            <input type="password" id="authPasswordInput" class="auth-input" maxlength="10" placeholder="পাসওয়ার্ড লিখুন" autofocus>
+            <button class="auth-submit-btn" onclick="submitAuth()">লগইন করুন</button>
+            <div id="authErrorMsg" class="auth-error">ভুল পাসওয়ার্ড! অনুগ্রহ করে সঠিক পাসওয়ার্ড দিন।</div>
         </div>
     </div>
 
-    <!-- Admin Main Header -->
-    <header class="admin-header">
-        <div class="admin-brand">
-            <svg viewBox="0 0 24 24">
-                <path d="M20 3H4v10c0 2.21 1.79 4 4 4h6c2.21 0 4-1.79 4-4v-3h2c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 5h-2V5h2v3zM4 19h16v2H4z"/>
-            </svg>
-            <div>
-                <h1>Morning Mug</h1>
+    <!-- Main Navigation matching Website -->
+    <header class="navbar admin-nav">
+        <div class="container admin-nav-inner">
+            <div class="admin-nav-left">
+                <a href="index.html" class="logo">
+                    <span class="svg-icon icon-brand" aria-hidden="true">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 8h1a4 4 0 1 1 0 8h-1"/>
+                            <path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/>
+                            <line x1="6" y1="2" x2="6" y2="4"/>
+                            <line x1="10" y1="2" x2="10" y2="4"/>
+                            <line x1="14" y1="2" x2="14" y2="4"/>
+                        </svg>
+                    </span>
+                    Morning Mug
+                </a>
+                <span class="admin-badge">Admin Portal</span>
             </div>
-            <span>Admin Portal</span>
-        </div>
-        <div class="admin-actions">
-            <a href="index.html" class="admin-btn-secondary" target="_blank">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/>
-                </svg>
-                লাইভ ওয়েবসাইট দেখুন
-            </a>
-            <button class="admin-btn-secondary" onclick="exportReservationsCSV()">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
-                </svg>
-                রিজার্ভেশন এক্সপোর্ট (CSV)
-            </button>
-            <button class="admin-btn-secondary" onclick="logoutAdmin()" style="color: #f87171;">
-                লগআউট
-            </button>
+
+            <nav class="nav-links">
+                <a href="index.html">হোম</a>
+                <a href="about.html">পরিচিতি</a>
+                <a href="menu.html">মেনু</a>
+                <a href="reservation.html">রিজার্ভেশন</a>
+                <a href="gallery.html">গ্যালারি</a>
+                <a href="contact.html">যোগাযোগ</a>
+            </nav>
+
+            <div class="admin-nav-actions">
+                <a href="index.html" class="admin-btn" target="_blank">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                        <polyline points="15 3 21 3 21 9"/>
+                        <line x1="10" y1="14" x2="21" y2="3"/>
+                    </svg>
+                    লাইভ সাইট
+                </a>
+                <button class="admin-btn" onclick="exportReservationsCSV()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7 10 12 15 17 10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                    CSV এক্সপোর্ট
+                </button>
+                <button class="admin-btn admin-btn-logout" onclick="logoutAdmin()">
+                    লগআউট
+                </button>
+            </div>
         </div>
     </header>
 
-    <!-- Main Content -->
-    <main class="admin-container">
-        <!-- Welcome Row -->
-        <div class="admin-welcome">
-            <div>
-                <h2>ব্যবসায়িক অ্যানালিটিক্স ও ইনসাইটস</h2>
-                <p>স্বাগতম Sahadat vai! রিয়েল-টাইম কাস্টমার বিহেভিয়ার, ভিজিটর ট্র্যাকিং ও অর্ডার মনিটরিং।</p>
-            </div>
-            <div class="live-tag">
-                <span class="live-pulse"></span>
-                লাইভ ট্র্যাকিং সক্রিয়
-            </div>
-        </div>
-
-        <!-- 4 KPI Metrics -->
-        <div class="kpi-grid">
-            <div class="kpi-card">
-                <div class="kpi-title">
-                    <span>মোট ভিজিটর (Total Visits)</span>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--admin-gold)"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+    <!-- Dashboard Content -->
+    <main class="dashboard-wrapper">
+        <div class="container">
+            <!-- Header Row -->
+            <div class="dashboard-header">
+                <div>
+                    <h1>ব্যবসায়িক অ্যানালিটিক্স ও ইনসাইটস</h1>
+                    <p>স্বাগতম Sahadat vai! রিয়েল-টাইম কাস্টমার বিহেভিয়ার, ভিজিটর ট্র্যাকিং ও অর্ডার মনিটরিং।</p>
                 </div>
-                <div class="kpi-value" id="kpiTotalVisits">0</div>
-                <div class="kpi-trend">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14l5-5 5 5z"/></svg>
-                    <span>+18.4% গত সপ্তাহ থেকে</span>
+                <div class="live-status-pill">
+                    <span class="live-dot"></span>
+                    লাইভ ট্র্যাকিং সক্রিয়
                 </div>
             </div>
 
-            <div class="kpi-card">
-                <div class="kpi-title">
-                    <span>ইউনিক ভিজিটর (Unique People)</span>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--admin-gold)"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+            <!-- KPI Cards -->
+            <div class="kpi-cards-grid">
+                <div class="kpi-box">
+                    <div class="kpi-label">
+                        <span>মোট ভিজিটর (Total Visits)</span>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                    </div>
+                    <div class="kpi-number" id="kpiTotalVisits">0</div>
+                    <div class="kpi-subtext">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+                        <span>সক্রিয় ট্র্যাকিং</span>
+                    </div>
                 </div>
-                <div class="kpi-value" id="kpiUniqueVisitors">0</div>
-                <div class="kpi-trend">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14l5-5 5 5z"/></svg>
-                    <span>+12.1% নতুন গ্রাহক</span>
+
+                <div class="kpi-box">
+                    <div class="kpi-label">
+                        <span>ইউনিক ভিজিটর (Unique People)</span>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    </div>
+                    <div class="kpi-number" id="kpiUniqueVisitors">0</div>
+                    <div class="kpi-subtext">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+                        <span>নতুন গ্রাহক বৃদ্ধি</span>
+                    </div>
+                </div>
+
+                <div class="kpi-box">
+                    <div class="kpi-label">
+                        <span>হোয়াটসঅ্যাপ অর্ডার ক্লিক</span>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="var(--gold)"><path d="M17.472 14.382c-.301-.15-1.78-.878-2.056-.979-.276-.1-.476-.15-.677.15-.2.301-.777.979-.953 1.18-.175.201-.351.226-.652.075-.3-.15-1.267-.467-2.414-1.489-.893-.796-1.496-1.78-1.672-2.081-.176-.301-.019-.464.132-.614.136-.135.301-.351.451-.526.151-.176.201-.301.302-.502.1-.201.05-.376-.025-.526-.075-.15-.677-1.631-.928-2.233-.244-.587-.492-.507-.677-.516-.175-.01-.376-.01-.577-.01-.201 0-.526.075-.802.376-.276.301-1.053 1.029-1.053 2.509 0 1.48 1.079 2.909 1.229 3.11.15.201 2.122 3.24 5.141 4.544.718.31 1.278.496 1.715.635.722.23 1.379.197 1.9-.12.58-.352 1.78-1.728 2.032-2.392.251-.664.251-1.233.176-1.384-.075-.15-.276-.226-.577-.376z"/></svg>
+                    </div>
+                    <div class="kpi-number" id="kpiWhatsappOrders">0</div>
+                    <div class="kpi-subtext">
+                        <span>কনভার্সন রেট ~19%</span>
+                    </div>
+                </div>
+
+                <div class="kpi-box">
+                    <div class="kpi-label">
+                        <span>টেবিল রিজার্ভেশন</span>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    </div>
+                    <div class="kpi-number" id="kpiReservations">0</div>
+                    <div class="kpi-subtext">
+                        <span>অনলাইন বুকিং</span>
+                    </div>
                 </div>
             </div>
 
-            <div class="kpi-card">
-                <div class="kpi-title">
-                    <span>হোয়াটসঅ্যাপ অর্ডার ক্লিক</span>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--admin-gold)"><path d="M17.472 14.382c-.301-.15-1.78-.878-2.056-.979-.276-.1-.476-.15-.677.15-.2.301-.777.979-.953 1.18-.175.201-.351.226-.652.075-.3-.15-1.267-.467-2.414-1.489-.893-.796-1.496-1.78-1.672-2.081-.176-.301-.019-.464.132-.614.136-.135.301-.351.451-.526.151-.176.201-.301.302-.502.1-.201.05-.376-.025-.526-.075-.15-.677-1.631-.928-2.233-.244-.587-.492-.507-.677-.516-.175-.01-.376-.01-.577-.01-.201 0-.526.075-.802.376-.276.301-1.053 1.029-1.053 2.509 0 1.48 1.079 2.909 1.229 3.11.15.201 2.122 3.24 5.141 4.544.718.31 1.278.496 1.715.635.722.23 1.379.197 1.9-.12.58-.352 1.78-1.728 2.032-2.392.251-.664.251-1.233.176-1.384-.075-.15-.276-.226-.577-.376z"/></svg>
+            <!-- Charts Row 1 -->
+            <div class="analytics-charts-grid">
+                <div class="chart-box">
+                    <div class="chart-box-header">
+                        <h2>পিক আওয়ার্স ও গ্রাহক ভিজিট (Hourly Activity)</h2>
+                        <span>সকাল ৬টা — রাত ১১টা</span>
+                    </div>
+                    <div class="chart-canvas-wrap">
+                        <canvas id="hourlyVisitsChart"></canvas>
+                    </div>
                 </div>
-                <div class="kpi-value" id="kpiWhatsappOrders">0</div>
-                <div class="kpi-trend">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14l5-5 5 5z"/></svg>
-                    <span>কনভার্সন রেট ~19%</span>
+
+                <div class="chart-box">
+                    <div class="chart-box-header">
+                        <h2>ডিভাইস অনুপাত</h2>
+                        <span>স্মার্টফোন বনাম ডেস্কটপ</span>
+                    </div>
+                    <div class="chart-canvas-wrap">
+                        <canvas id="deviceChart"></canvas>
+                    </div>
                 </div>
             </div>
 
-            <div class="kpi-card">
-                <div class="kpi-title">
-                    <span>টেবিল বুকিং / রিজার্ভেশন</span>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--admin-gold)"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg>
+            <!-- Charts Row 2 -->
+            <div class="analytics-charts-grid">
+                <div class="chart-box">
+                    <div class="chart-box-header">
+                        <h2>সর্বাধিক ক্লিক হওয়া কফি ও ফুড আইটেম (Top Products)</h2>
+                        <span>পছন্দের তালিকা</span>
+                    </div>
+                    <div class="chart-canvas-wrap">
+                        <canvas id="topProductsChart"></canvas>
+                    </div>
                 </div>
-                <div class="kpi-value" id="kpiReservations">0</div>
-                <div class="kpi-trend">
-                    <span>সক্রিয় রিকোয়েস্ট</span>
-                </div>
-            </div>
-        </div>
 
-        <!-- Charts Row 1: Hourly Visits & Device Share -->
-        <div class="charts-grid">
-            <div class="chart-card">
-                <h3>
-                    <span>পিক আওয়ার্স ও গ্রাহক ভিজিট (Hourly Customer Activity)</span>
-                    <span>সকাল ৬টা — রাত ১১টা</span>
-                </h3>
-                <div class="chart-container">
-                    <canvas id="hourlyVisitsChart"></canvas>
-                </div>
-            </div>
-
-            <div class="chart-card">
-                <h3>
-                    <span>ডিভাইস ব্যবহার (Device Breakdown)</span>
-                    <span>মোবাইল বনাম ডেস্কটপ</span>
-                </h3>
-                <div class="chart-container">
-                    <canvas id="deviceChart"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <!-- Charts Row 2: Most Popular Menu Items & Page Views -->
-        <div class="charts-grid">
-            <div class="chart-card">
-                <h3>
-                    <span>সর্বাধিক ক্লিক হওয়া কফি ও ফুড আইটেম (Top Products)</span>
-                    <span>কাস্টমারদের পছন্দের তালিকা</span>
-                </h3>
-                <div class="chart-container">
-                    <canvas id="topProductsChart"></canvas>
+                <div class="chart-box">
+                    <div class="chart-box-header">
+                        <h2>জনপ্রিয় পেজসমূহ (Page Views)</h2>
+                        <span>পেজ ট্রাফিক</span>
+                    </div>
+                    <div class="chart-canvas-wrap">
+                        <canvas id="pageViewsChart"></canvas>
+                    </div>
                 </div>
             </div>
 
-            <div class="chart-card">
-                <h3>
-                    <span>জনপ্রিয় পেজসমূহ (Page Views)</span>
-                    <span>পেজ ভিত্তিক ভিজিট</span>
-                </h3>
-                <div class="chart-container">
-                    <canvas id="pageViewsChart"></canvas>
-                </div>
+            <!-- Reservations Table Section -->
+            <div class="table-section-title">
+                <h2>সাম্প্রতিক টেবিল রিজার্ভেশনসমূহ (Incoming Bookings)</h2>
+                <button class="admin-btn" onclick="initDashboard()">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                        <path d="M3 3v5h5"/>
+                        <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/>
+                        <path d="M16 21h5v-5"/>
+                    </svg>
+                    রিফ্রেশ করুন
+                </button>
             </div>
-        </div>
 
-        <!-- Table Reservations Log -->
-        <div class="section-header">
-            <h3>সাম্প্রতিক টেবিল রিজার্ভেশনসমূহ (Incoming Bookings)</h3>
-            <button class="admin-btn-secondary" onclick="addNewTestReservation()">
-                + টেস্ট বুকিং যোগ করুন
-            </button>
-        </div>
-
-        <div class="data-table-card">
-            <div class="table-responsive">
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>বুকিং আইডি</th>
-                            <th>কাস্টমারের নাম</th>
-                            <th>ফোন নম্বর</th>
-                            <th>তারিখ ও সময়</th>
-                            <th>অতিথি সংখ্যা</th>
-                            <th>বিশেষ নোট</th>
-                            <th>অবস্থা (Status)</th>
-                            <th>অ্যাকশন</th>
-                        </tr>
-                    </thead>
-                    <tbody id="reservationsTableBody">
-                        <!-- Populated by JavaScript -->
-                    </tbody>
-                </table>
+            <div class="table-card">
+                <div class="table-scroll">
+                    <table class="dashboard-table">
+                        <thead>
+                            <tr>
+                                <th>বুকিং আইডি</th>
+                                <th>কাস্টমারের নাম</th>
+                                <th>ফোন নম্বর</th>
+                                <th>তারিখ ও সময়</th>
+                                <th>অতিথি</th>
+                                <th>নোট</th>
+                                <th>অবস্থা</th>
+                                <th>অ্যাকশন</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reservationsTableBody">
+                            <!-- Injected by script -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </main>
 
-    <!-- Analytics Dashboard Logic -->
+    <!-- Footer matching Website -->
+    <footer class="footer">
+        <div class="container footer-bottom" style="border: none; padding-top: 0;">
+            <p class="copyright">© 2026 Morning Mug Coffee House. All rights reserved. • Executive Analytics Portal</p>
+        </div>
+    </footer>
+
     <script>
-        const PIN_KEY = 'mm_admin_auth';
-        const CORRECT_PIN = '1234';
+        const AUTH_KEY = 'mm_admin_auth_v2';
+        const SECRET_PIN = '440055';
 
-        // Check auth on load
+        // Check login state
         function checkAuth() {
-            if (sessionStorage.getItem(PIN_KEY) === 'authenticated') {
-                document.getElementById('pinModal').style.display = 'none';
+            if (sessionStorage.getItem(AUTH_KEY) === 'authenticated') {
+                document.getElementById('authModal').style.display = 'none';
                 initDashboard();
             } else {
-                document.getElementById('pinModal').style.display = 'flex';
-                document.getElementById('pinInput').focus();
+                document.getElementById('authModal').style.display = 'flex';
+                document.getElementById('authPasswordInput').focus();
             }
         }
 
-        // Verify PIN
-        function verifyPin() {
-            const pin = document.getElementById('pinInput').value.trim();
-            if (pin === CORRECT_PIN) {
-                sessionStorage.setItem(PIN_KEY, 'authenticated');
-                document.getElementById('pinModal').style.display = 'none';
+        // Verify password
+        function submitAuth() {
+            const input = document.getElementById('authPasswordInput').value.trim();
+            if (input === SECRET_PIN) {
+                sessionStorage.setItem(AUTH_KEY, 'authenticated');
+                document.getElementById('authModal').style.display = 'none';
                 initDashboard();
             } else {
-                document.getElementById('pinError').style.display = 'block';
-                document.getElementById('pinInput').value = '';
-                document.getElementById('pinInput').focus();
+                document.getElementById('authErrorMsg').style.display = 'block';
+                document.getElementById('authPasswordInput').value = '';
+                document.getElementById('authPasswordInput').focus();
             }
         }
 
-        // Enter key to submit PIN
-        document.getElementById('pinInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') verifyPin();
+        // Press Enter to submit
+        document.getElementById('authPasswordInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') submitAuth();
         });
 
         // Logout
         function logoutAdmin() {
-            sessionStorage.removeItem(PIN_KEY);
+            sessionStorage.removeItem(AUTH_KEY);
             window.location.reload();
         }
 
-        // Fetch Data from localStorage
-        function loadMetrics() {
+        // Load data from analytics storage
+        function getStoredData() {
             const raw = localStorage.getItem('mm_analytics_data');
             if (raw) {
                 try { return JSON.parse(raw); } catch (e) { }
@@ -673,30 +732,35 @@
             };
         }
 
-        // Initialize charts and tables
-        function initDashboard() {
-            const data = loadMetrics();
+        let hourlyChart = null;
+        let deviceChart = null;
+        let productsChart = null;
+        let pagesChart = null;
 
-            // Populate KPIs
+        function initDashboard() {
+            const data = getStoredData();
+
+            // KPIs
             document.getElementById('kpiTotalVisits').textContent = data.totalVisits || 142;
             document.getElementById('kpiUniqueVisitors').textContent = data.uniqueVisitors || 118;
             document.getElementById('kpiWhatsappOrders').textContent = data.whatsappOrders || 27;
             document.getElementById('kpiReservations').textContent = (data.reservations && data.reservations.length) || 3;
 
-            // Render Chart 1: Hourly Peak Visits
-            const hoursLabels = ['12 AM','1 AM','2 AM','3 AM','4 AM','5 AM','6 AM','7 AM','8 AM','9 AM','10 AM','11 AM','12 PM','1 PM','2 PM','3 PM','4 PM','5 PM','6 PM','7 PM','8 PM','9 PM','10 PM','11 PM'];
-            new Chart(document.getElementById('hourlyVisitsChart'), {
+            // Hourly Chart
+            const hoursLabels = ['6 AM','7 AM','8 AM','9 AM','10 AM','11 AM','12 PM','1 PM','2 PM','3 PM','4 PM','5 PM','6 PM','7 PM','8 PM','9 PM','10 PM'];
+            if (hourlyChart) hourlyChart.destroy();
+            hourlyChart = new Chart(document.getElementById('hourlyVisitsChart'), {
                 type: 'line',
                 data: {
-                    labels: hoursLabels.slice(6, 23), // 6 AM to 10 PM
+                    labels: hoursLabels,
                     datasets: [{
-                        label: 'গ্রাহকদের ভিজিট সংখ্যা',
+                        label: 'ভিজিটর সংখ্যা',
                         data: (data.hourlyVisits || []).slice(6, 23),
                         borderColor: '#c8956b',
-                        backgroundColor: 'rgba(200, 149, 107, 0.15)',
+                        backgroundColor: 'rgba(200, 149, 107, 0.16)',
                         fill: true,
                         tension: 0.4,
-                        borderWidth: 2,
+                        borderWidth: 2.5,
                         pointBackgroundColor: '#c8956b',
                         pointRadius: 4
                     }]
@@ -706,23 +770,24 @@
                     maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
                     scales: {
-                        x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#a89f91' } },
-                        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#a89f91' }, beginAtZero: true }
+                        x: { grid: { color: 'rgba(255,255,255,0.06)' }, ticks: { color: '#a89f91' } },
+                        y: { grid: { color: 'rgba(255,255,255,0.06)' }, ticks: { color: '#a89f91' }, beginAtZero: true }
                     }
                 }
             });
 
-            // Render Chart 2: Device Share (Donut)
+            // Device Share Chart
             const mobileCount = (data.devices && data.devices.mobile) || 94;
             const desktopCount = (data.devices && data.devices.desktop) || 48;
-            new Chart(document.getElementById('deviceChart'), {
+            if (deviceChart) deviceChart.destroy();
+            deviceChart = new Chart(document.getElementById('deviceChart'), {
                 type: 'doughnut',
                 data: {
                     labels: ['স্মার্টফোন (Mobile)', 'কম্পিউটার (Desktop)'],
                     datasets: [{
                         data: [mobileCount, desktopCount],
                         backgroundColor: ['#c8956b', '#5c3a21'],
-                        borderColor: '#18110b',
+                        borderColor: '#1e120c',
                         borderWidth: 3
                     }]
                 },
@@ -730,20 +795,20 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: { position: 'bottom', labels: { color: '#a89f91', font: { size: 12 } } }
+                        legend: { position: 'bottom', labels: { color: '#f5ebe6', font: { size: 12 } } }
                     }
                 }
             });
 
-            // Render Chart 3: Top Menu Items Clicked (Horizontal Bar)
+            // Top Products Bar Chart
             const prodLabels = Object.keys(data.productClicks || {});
             const prodValues = Object.values(data.productClicks || {});
-            new Chart(document.getElementById('topProductsChart'), {
+            if (productsChart) productsChart.destroy();
+            productsChart = new Chart(document.getElementById('topProductsChart'), {
                 type: 'bar',
                 data: {
                     labels: prodLabels.length ? prodLabels : ['Cappuccino', 'Caramel Macchiato', 'Espresso', 'Croissant', 'Iced Tea'],
                     datasets: [{
-                        label: 'ক্লিক সংখ্যা',
                         data: prodValues.length ? prodValues : [48, 39, 32, 29, 22],
                         backgroundColor: '#c8956b',
                         borderRadius: 6
@@ -755,13 +820,13 @@
                     maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
                     scales: {
-                        x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#a89f91' } },
+                        x: { grid: { color: 'rgba(255,255,255,0.06)' }, ticks: { color: '#a89f91' } },
                         y: { grid: { display: false }, ticks: { color: '#f5ebe6', font: { size: 12 } } }
                     }
                 }
             });
 
-            // Render Chart 4: Page Views
+            // Page Views Bar Chart
             const pageLabels = ['হোম পেজ', 'মেনু পেজ', 'আমাদের পরিচিতি', 'রিজার্ভেশন', 'গ্যালারি', 'কন্টাক্ট'];
             const pageValues = [
                 data.pageViews?.['index.html'] || 286,
@@ -771,12 +836,12 @@
                 data.pageViews?.['gallery.html'] || 45,
                 data.pageViews?.['contact.html'] || 38
             ];
-            new Chart(document.getElementById('pageViewsChart'), {
+            if (pagesChart) pagesChart.destroy();
+            pagesChart = new Chart(document.getElementById('pageViewsChart'), {
                 type: 'bar',
                 data: {
                     labels: pageLabels,
                     datasets: [{
-                        label: 'ভিউ সংখ্যা',
                         data: pageValues,
                         backgroundColor: '#8b5a2b',
                         borderRadius: 6
@@ -788,34 +853,33 @@
                     plugins: { legend: { display: false } },
                     scales: {
                         x: { grid: { display: false }, ticks: { color: '#a89f91' } },
-                        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#a89f91' } }
+                        y: { grid: { color: 'rgba(255,255,255,0.06)' }, ticks: { color: '#a89f91' } }
                     }
                 }
             });
 
-            // Render Reservations Table
             renderReservationsTable(data.reservations || []);
         }
 
-        // Render Table Rows
+        // Render Table
         function renderReservationsTable(reservations) {
             const tbody = document.getElementById('reservationsTableBody');
             tbody.innerHTML = '';
 
             reservations.forEach((item, index) => {
                 const tr = document.createElement('tr');
-                const badgeClass = item.status === 'Confirmed' ? 'status-confirmed' : item.status === 'Pending' ? 'status-pending' : 'status-completed';
+                const badgeClass = item.status === 'Confirmed' ? 'badge-confirmed' : item.status === 'Pending' ? 'badge-pending' : 'badge-completed';
                 tr.innerHTML = `
                     <td><strong>${item.id}</strong></td>
                     <td>${item.name}</td>
-                    <td><a href="tel:${item.phone}" style="color:var(--admin-gold); text-decoration:none;">${item.phone}</a></td>
-                    <td>${item.date} <small style="color:var(--admin-muted)">(${item.time})</small></td>
+                    <td><a href="tel:${item.phone}" style="color:var(--gold); text-decoration:none;">${item.phone}</a></td>
+                    <td>${item.date} <small style="color:var(--muted)">(${item.time})</small></td>
                     <td>${item.guests} জন</td>
-                    <td style="max-width: 200px; color: var(--admin-muted); font-size: 0.85rem;">${item.notes}</td>
-                    <td><span class="status-badge ${badgeClass}">${item.status}</span></td>
+                    <td style="max-width: 220px; color: var(--muted); font-size: 0.85rem;">${item.notes}</td>
+                    <td><span class="badge-status ${badgeClass}">${item.status}</span></td>
                     <td>
-                        <button class="admin-btn-secondary" style="padding:0.3rem 0.6rem; font-size:0.75rem;" onclick="toggleReservationStatus(${index})">
-                            ${item.status === 'Confirmed' ? 'Complete' : 'Confirm'}
+                        <button class="admin-btn" style="padding:0.35rem 0.75rem; font-size:0.75rem;" onclick="toggleStatus(${index})">
+                            ${item.status === 'Confirmed' ? 'সম্পন্ন' : 'নিশ্চিত করুন'}
                         </button>
                     </td>
                 `;
@@ -823,9 +887,8 @@
             });
         }
 
-        // Toggle Reservation Status
-        function toggleReservationStatus(index) {
-            const data = loadMetrics();
+        function toggleStatus(index) {
+            const data = getStoredData();
             if (data.reservations && data.reservations[index]) {
                 const current = data.reservations[index].status;
                 data.reservations[index].status = current === 'Confirmed' ? 'Completed' : 'Confirmed';
@@ -834,34 +897,11 @@
             }
         }
 
-        // Add a test reservation
-        function addNewTestReservation() {
-            const names = ['Kazi Shuvo', 'Afsana Mimi', 'Mahmudul Hasan', 'Farhana Islam'];
-            const randomName = names[Math.floor(Math.random() * names.length)];
-            const newRes = {
-                id: 'RES-' + Math.floor(1000 + Math.random() * 9000),
-                timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                name: randomName,
-                phone: '017' + Math.floor(10000000 + Math.random() * 90000000),
-                date: '2026-10-06',
-                time: '19:00',
-                guests: Math.floor(2 + Math.random() * 4).toString(),
-                notes: 'Online website booking',
-                status: 'Pending'
-            };
-            const data = loadMetrics();
-            if (!data.reservations) data.reservations = [];
-            data.reservations.unshift(newRes);
-            localStorage.setItem('mm_analytics_data', JSON.stringify(data));
-            renderReservationsTable(data.reservations);
-            document.getElementById('kpiReservations').textContent = data.reservations.length;
-        }
-
         // Export Reservations to CSV
         function exportReservationsCSV() {
-            const data = loadMetrics();
+            const data = getStoredData();
             const list = data.reservations || [];
-            let csv = 'ID,Name,Phone,Date,Time,Guests,Notes,Status\n';
+            let csv = 'বুকিং আইডি,কাস্টমারের নাম,ফোন নম্বর,তারিখ,সময়,অতিথি সংখ্যা,নোট,স্ট্যাটাস\n';
             list.forEach(r => {
                 csv += `"${r.id}","${r.name}","${r.phone}","${r.date}","${r.time}","${r.guests}","${r.notes}","${r.status}"\n`;
             });
@@ -874,7 +914,6 @@
             document.body.removeChild(link);
         }
 
-        // Run auth check on DOM load
         document.addEventListener('DOMContentLoaded', checkAuth);
     </script>
 </body>
